@@ -143,10 +143,12 @@ class Folder extends Ansible {
         $version = $task->link_id;
         $packagePath = Project::getDeployPackagePath($version);
 
-        $releasePackage = Project::getReleaseVersionPackage($version);
+		$releasePackage = Project::getReleaseVersionPackage($version);
 
-        $scpCommand = sprintf('scp -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=false -P %d %s %s@%s:%s',
-            $this->getHostPort($remoteHost),
+        // 使用sshpass实现scp远程拷贝时无需输入密码
+		$scpCommand = sprintf('sshpass -p %s scp -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=false -P %d %s %s@%s:%s',
+			escapeshellarg($this->release_password),
+			$this->getHostPort($remoteHost),
             $packagePath,
             escapeshellarg($this->getConfig()->release_user),
             escapeshellarg($this->getHostName($remoteHost)),
@@ -203,7 +205,7 @@ class Folder extends Ansible {
         }
 
         $cmd[] = sprintf('cd %1$s && tar --no-same-owner -pm -C %1$s -xz -f %2$s',
-            $releasePath,
+            $webrootPath,
             $releasePackage
         );
 

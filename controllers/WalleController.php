@@ -187,8 +187,8 @@ class WalleController extends Controller
 
             if ($project->ansible) {
                 $this->ansible = new Ansible($project);
-
-                // 3.检测 ansible 是否安装
+        
+		// 3.检测 ansible 是否安装
                 $ret = $this->ansible->test();
                 if (!$ret) {
                     $code = -1;

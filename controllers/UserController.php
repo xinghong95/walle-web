@@ -259,12 +259,17 @@ class UserController extends Controller {
         $this->validateAdmin();
         if ($uid) {
             $user = User::findOne($uid);
-                Yii::$app->mail->compose('accountNotice', ['user' => $user])
-                    ->setFrom(Yii::$app->mail->messageConfig['from'])
-                    ->setTo($user->email)
-                    ->setSubject('帐号已开通')
-                    ->send();
-                return $this->redirect('@web/user/list');
+		if($user){
+			$user->generateEmailConfirmationToken();
+			if ($user->save()) {
+                	Yii::$app->mail->compose('accountNotice', ['user' => $user])
+                    	->setFrom(Yii::$app->mail->messageConfig['from'])
+                    	->setTo($user->email)
+                    	->setSubject('帐号已开通')
+                    	->send();
+                	return $this->redirect('@web/user/list');
+			}
+		}
         }
 
         $this->renderJson([], self::SUCCESS);

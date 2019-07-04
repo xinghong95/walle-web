@@ -13,7 +13,8 @@ class m150927_061454_alter_conf_to_mysql extends Migration
         $this->addColumn('conf', 'git_url', Schema::TYPE_STRING . '(200) DEFAULT "" COMMENT "git地址"');
         $this->addColumn('conf', 'deploy_from', Schema::TYPE_STRING . '(200) NOT NULL COMMENT "宿主机存放clone出来的文件"');
         $this->addColumn('conf', 'excludes', Schema::TYPE_STRING . '(500) DEFAULT "" COMMENT "要排除的文件"');
-        $this->addColumn('conf', 'release_user', Schema::TYPE_STRING . '(50) NOT NULL COMMENT "目标机器用户"');
+        $this->addColumn('conf', 'release_user', Schema::TYPE_STRING . '(50) NOT NULL COMMENT "ssh用户"');
+		$this->addColumn('conf', 'release_password', Schema::TYPE_STRING . '(50) NOT NULL COMMENT "ssh密码"');
         $this->addColumn('conf', 'release_to', Schema::TYPE_STRING . '(200) NOT NULL COMMENT "目标机器的目录，相当于nginx的root，可直接web访问"');
         $this->addColumn('conf', 'release_library', Schema::TYPE_STRING . '(200) NOT NULL COMMENT "目标机器版本发布库"');
         $this->addColumn('conf', 'hosts', Schema::TYPE_STRING . '(500) NOT NULL COMMENT "目标机器列表"');

@@ -109,10 +109,10 @@ class Project extends \yii\db\ActiveRecord
             [['user_id', 'level', 'status', 'post_release_delay', 'audit', 'ansible', 'keep_version_num'], 'integer'],
             [['excludes', 'hosts', 'pre_deploy', 'post_deploy', 'pre_release', 'post_release'], 'string'],
             [['created_at', 'updated_at'], 'safe'],
-            [['name', 'repo_password'], 'string', 'max' => 100],
+            [['name'], 'string', 'max' => 100],
             [['version'], 'string', 'max' => 20],
-            ['repo_type', 'default', 'value' => self::REPO_GIT],
-            [['deploy_from', 'release_to', 'release_library', 'repo_url'], 'string', 'max' => 200],
+            ['repo_type', 'default', 'value' => self::REPO_SVN],
+            [['deploy_from', 'release_to', 'release_library', 'repo_url', 'repo_password', 'release_password'], 'string', 'max' => 200],
             [['release_user', 'repo_mode', 'repo_username'], 'string', 'max' => 50],
             [['repo_type'], 'string', 'max' => 10],
         ];
@@ -133,7 +133,8 @@ class Project extends \yii\db\ActiveRecord
             'created_at'         => 'Created At',
             'deploy_from'        => '检出仓库',
             'excludes'           => '排除文件列表',
-            'release_user'       => '目标机器部署代码用户',
+            'release_user'       => 'ssh用户',
+			'release_password'	 => 'ssh密码',
             'release_to'         => '代码的webroot',
             'release_library'    => '发布版本库',
             'hosts'              => '目标机器',
@@ -159,7 +160,7 @@ class Project extends \yii\db\ActiveRecord
      * @return string|\yii\db\ActiveQuery
      */
     public static function getConf($id = null) {
-        if (empty(static::$CONF)) {
+	if (empty(static::$CONF)) {
             static::$CONF = static::findOne($id);
         }
         return static::$CONF;
@@ -186,12 +187,12 @@ class Project extends \yii\db\ActiveRecord
      * @return string
      */
     public static function getDeployWorkspace($version) {
-        $from    = static::$CONF->deploy_from;
+    	$from    = static::$CONF->deploy_from;
         $env     = isset(static::$LEVEL[static::$CONF->level]) ? static::$LEVEL[static::$CONF->level] : 'unknow';
         $project = static::getGitProjectName(static::$CONF->repo_url);
 
         return sprintf("%s/%s/%s-%s", rtrim($from, '/'), rtrim($env, '/'), $project, $version);
-    }
+	}
 
     /**
      * 获取 ansible 宿主机tar文件路径
@@ -217,7 +218,7 @@ class Project extends \yii\db\ActiveRecord
         $env     = isset(static::$LEVEL[static::$CONF->level]) ? static::$LEVEL[static::$CONF->level] : 'unknow';
         $project = static::getGitProjectName(static::$CONF->repo_url);
 
-        return sprintf("%s/%s/%s", rtrim($from, '/'), rtrim($env, '/'), $project);
+	return sprintf("%s/%s/%s", rtrim($from, '/'), rtrim($env, '/'), $project);
     }
 
     /**
@@ -261,7 +262,7 @@ class Project extends \yii\db\ActiveRecord
      * @return string
      */
     public static function getReleaseVersionDir($version = '') {
-        return sprintf('%s/%s/%s', rtrim(static::$CONF->release_library, '/'),
+    	return sprintf('%s/%s/%s', rtrim(static::$CONF->release_library, '/'),
             static::getGitProjectName(static::$CONF->repo_url), $version);
     }
 

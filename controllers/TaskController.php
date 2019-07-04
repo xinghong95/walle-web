@@ -49,7 +49,8 @@ class TaskController extends Controller
 
         $kw = \Yii::$app->request->post('kw');
         if ($kw) {
-            $list->andWhere(['or', "commit_id like '%" . $kw . "%'", "title like '%" . $kw . "%'"]);
+            //$list->andWhere(['or', "commit_id like '%" . $kw . "%'", "title like '%" . $kw . "%'"]);
+			$list->andWhere(['or', ['like', 'commit_id', $kw], ['like', 'title', $kw]]);
         }
 
         $projectId = (int)\Yii::$app->request->post('project_id');

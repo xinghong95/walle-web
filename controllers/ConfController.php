@@ -125,6 +125,10 @@ class ConfController extends Controller
     public function actionEdit($projectId = null) {
         if ($projectId) {
             $project = $this->findModel($projectId);
+			$old_release_password = $project->release_password;
+			$old_repo_password = $project->repo_password;
+			$project->release_password = md5($project->release_password);
+			$project->repo_password = md5($project->repo_password);
         } else {
             $project = new Project();
             $project->loadDefaultValues();
@@ -132,6 +136,31 @@ class ConfController extends Controller
 
         if (\Yii::$app->request->getIsPost() && $project->load(Yii::$app->request->post())) {
             $project->user_id = $this->uid;
+			// 加密SVN密码、SSH密码
+			$cipher = "AES-128-CBC";
+			$ivlen = openssl_cipher_iv_length($cipher);
+			$iv1 = openssl_random_pseudo_bytes($ivlen);
+			$iv2 = openssl_random_pseudo_bytes($ivlen);
+			$key1 = bin2hex(openssl_random_pseudo_bytes(10));
+			$key2 = bin2hex(openssl_random_pseudo_bytes(10));
+			if (!$projectId) {
+				$project->repo_password = openssl_encrypt($project->repo_password, $cipher, $key1, $options=0, $iv1).":".$key1.":".bin2hex($iv1);
+				$project->release_password = openssl_encrypt($project->release_password, $cipher, $key2, $options=0, $iv2).":".$key2.":".bin2hex($iv2);
+			} else {
+				if (trim($project->repo_password) != md5($old_repo_password) && trim($project->release_password) == md5($old_release_password)) {
+					$project->repo_password = openssl_encrypt($project->repo_password, $cipher, $key1, $options=0, $iv1).":".$key1.":".bin2hex($iv1);
+					$project->release_password = $old_release_password;
+				} elseif (trim($project->repo_password) == md5($old_repo_password) && trim($project->release_password) != md5($old_release_password)) {
+					$project->repo_password = $old_repo_password;
+					$project->release_password = openssl_encrypt($project->release_password, $cipher, $key2, $options=0, $iv2).":".$key2.":".bin2hex($iv2);
+				} elseif (trim($project->repo_password) != md5($old_repo_password) && trim($project->release_password) != md5($old_release_password)) {
+					$project->repo_password = openssl_encrypt($project->repo_password, $cipher, $key1, $options=0, $iv1).":".$key1.":".bin2hex($iv1);
+					$project->release_password = openssl_encrypt($project->release_password, $cipher, $key2, $options=0, $iv2).":".$key2.":".bin2hex($iv2);
+				} else {
+					$project->repo_password = $old_repo_password;
+					$project->release_password = $old_release_password;
+				}
+			}
 
             if ($project->save()) {
                 // 保存ansible需要的hosts文件

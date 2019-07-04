@@ -22,7 +22,7 @@ class Svn extends Command {
      * @return bool|int
      */
     public function updateRepo($branch = 'trunk', $svnDir = null) {
-        $svnDir = $svnDir ?: Project::getDeployFromDir();
+        $svnDir = Project::getDeployFromDir();
         $dotSvn = rtrim($svnDir, '/') . '/.svn';
 
         if (file_exists($dotSvn)) {
@@ -262,8 +262,9 @@ class Svn extends Command {
      * @return string
      */
     private function _getSvnCmd($cmd) {
+
         return sprintf('/usr/bin/env LC_ALL=en_US.UTF-8 %s --username=%s --password=%s --non-interactive --trust-server-cert',
-            $cmd, escapeshellarg($this->config->repo_username), escapeshellarg($this->config->repo_password));
+            $cmd, escapeshellarg($this->config->repo_username), escapeshellarg($this->repo_password));
     }
 
 }

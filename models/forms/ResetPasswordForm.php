@@ -30,10 +30,12 @@ class ResetPasswordForm extends Model
         if (empty($token) || !is_string($token)) {
             throw new InvalidParamException('Password reset token cannot be blank.');
         }
-        $this->_user = User::find()->canLogin()->passwordResetToken($token)->one();
+        $this->_user = User::find()->passwordResetToken($token)->one();
         if (!$this->_user) {
             throw new InvalidParamException('Wrong password reset token.');
-        }
+        } else if ($this->_user->status == 0) {
+		throw new InvalidParamException('Your account has been frozen.');
+	}
         parent::__construct($config);
     }
 

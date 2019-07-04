@@ -89,7 +89,7 @@ class SiteController extends Controller
     /**
      * User signup
      */
-    public function actionSignup() {
+    /*public function actionSignup() {
         $userDriver = isset(\Yii::$app->params['user_driver']) == true && empty(\Yii::$app->params['user_driver']) == false ? \Yii::$app->params['user_driver'] : 'local';
         if ($userDriver != 'local') {
             throw new BadRequestHttpException(Yii::t('walle', 'the login type does not provide registration', array(
@@ -118,7 +118,7 @@ class SiteController extends Controller
         return $this->render('signup', [
             'model' => $user,
         ]);
-    }
+    }*/
 
     /**
      * Confirm email
@@ -148,6 +148,10 @@ class SiteController extends Controller
 
         $model = new PasswordResetRequestForm();
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+		$user = User::find()->email($model->email)->one();
+		if ($user->status == 0) {
+			throw new InvalidParamException('Your account has been frozen.');
+		}
             if ($model->sendEmail()) {
                 Yii::$app->getSession()->setFlash('success', 'Check your email for further instructions.');
                 return $this->goHome();

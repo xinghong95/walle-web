@@ -34,10 +34,6 @@ use yii\widgets\ActiveForm;
                 </h4>
                 <ul class="nav nav-tabs" id="recent-tab">
                     <li class="active">
-                        <a data-toggle="tab" class="show-git" href="#repo-tab">Git</a>
-                    </li>
-
-                    <li class="">
                         <a data-toggle="tab" class="show-svn" href="#repo-tab">Svn</a>
                     </li>
                 </ul>
@@ -58,7 +54,7 @@ use yii\widgets\ActiveForm;
         <!-- 地址 配置 end-->
         <div class="clearfix"></div>
         <?php if (empty($_GET['projectId']) || $conf->repo_type == Project::REPO_SVN) { ?>
-        <div class="username-password" style="<?= empty($_GET['projectId']) ? 'display:none' : '' ?>">
+        <div class="username-password" style="<?= empty($_GET['projectId']) ? 'display:block' : '' ?>">
         <?= $form->field($conf, 'repo_username')
             ->textInput([
                 'class'          => 'col-sm-3',
@@ -137,12 +133,21 @@ use yii\widgets\ActiveForm;
                   <div class="widget-main">
                       <?= $form->field($conf, 'release_user')
                           ->textInput([
-                              'placeholder'    => 'www',
+                              'placeholder'    => 'ssh_user',
                               'data-placement' => 'top',
                               'data-rel'       => 'tooltip',
                               'data-title'     => yii::t('conf', 'target user tip'),
                           ])
                           ->label(yii::t('conf', 'target user').'<small><i class="light-blue icon-asterisk"></i></small>',
+                              ['class' => 'text-right bolder']) ?>
+					  <?= $form->field($conf, 'release_password')
+                          ->passwordInput([
+                              'placeholder'    => 'ssh_password',
+                              'data-placement' => 'top',
+                              'data-rel'       => 'tooltip',
+                              'data-title'     => yii::t('conf', 'target password tip'),
+                          ])
+                          ->label(yii::t('conf', 'target password').'<small><i class="light-blue icon-asterisk"></i></small>',
                               ['class' => 'text-right bolder']) ?>
                       <?= $form->field($conf, 'release_to')
                           ->textInput([
@@ -280,7 +285,7 @@ use yii\widgets\ActiveForm;
                 </label>
             </div>
 
-            <div id="div-repo_mode_nontrunk" class="radio" style="display: <?php if ($conf->repo_type == Project::REPO_SVN) { echo 'inline';} else {echo 'none';} ?>;" data-rel="tooltip" data-title="<?= yii::t('conf', 'nontrunk tip') ?>" data-placement="right">
+            <div id="div-repo_mode_nontrunk" class="radio" style="display: inline;" data-rel="tooltip" data-title="<?= yii::t('conf', 'nontrunk tip') ?>" data-placement="right">
                 <label>
                     <input name="Project[repo_mode]" value="<?= Project::REPO_MODE_NONTRUNK ?>" <?= $conf->repo_mode == Project::REPO_MODE_NONTRUNK ? 'checked="checked"' : '' ?> type="radio" class="ace">
                     <span class="lbl"><?= yii::t('conf', 'nontrunk') ?></span>
