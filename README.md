@@ -36,6 +36,7 @@ Requirements
 * LNMP/LAMP(php5.4+)
 * Composer
 * Ansible(Optional)
+* sshpass（ssh免交互登录工具）
 
 That's all. It's base package of PHP environment!
 
